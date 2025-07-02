@@ -33,7 +33,16 @@ const userSchema = new Schema({
       },
       message: props => `${props.value} is not a valid gender. Accepted values are: male, female, other.`
     }
-  }
+  },
+  skills: {
+    type: [String],
+    validate: {
+      validator: function (value) {
+        return value.length <= 5;
+      },
+      message: 'You can only have a maximum of 5 skills.'
+    }
+  },
 
 },
 {

@@ -96,12 +96,13 @@ app.get("/feed", async (req, res) => {
     }
 });
 
-app.patch("/users/update", async (req, res) => {
+app.patch("/users/update/:userId", async (req, res) => {
+    const userId = req.params?.userId;
+    const updatedData = req.body;
+
     try {
         // Email can not be updated.
-        const ALLOWED_FIELDS = ["firstName", "lastName", "password", "age"];
-        console.log("Request body:", req.body);
-        const {userId, ...updatedData} = req.body;
+        const ALLOWED_FIELDS = ["firstName", "lastName", "password", "age","skills"];
         const invalidFields = Object.keys(updatedData).filter((key) => !ALLOWED_FIELDS.includes(key));
         if (invalidFields.length > 0) {
             return res.status(400).send("Invalid fields in request body: " + invalidFields.join(", "));
