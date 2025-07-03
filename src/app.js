@@ -63,7 +63,7 @@ app.post("/signup", async (req, res) => {
         res.send("User created successfully");
     } catch (error) {
         console.error("Validation error:", error);
-        return res.status(400).send("Validation failed");
+        return res.status(400).send(error.message || "Validation failed");
     }
 });
 
