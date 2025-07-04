@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const validator = require('validator');
 
 const userSchema = new Schema({
   firstName: {
@@ -15,7 +16,12 @@ const userSchema = new Schema({
     required: true,
     unique: true,
     trim: true,
-    match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Please enter a valid email address'],
+    // match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/, 'Please enter a valid email address'],
+    validate(value) {
+      if(!validator.isEmail(value)) {
+        throw new Error('Please enter a valid email address');
+      }
+    }
   },
   password: {
     type: String,
@@ -37,7 +43,7 @@ const userSchema = new Schema({
   },
   skills: {
     type: [String],
-    validate: {
+    validate: {  
       validator: function (value) {
         return value.length <= 5;
       },
