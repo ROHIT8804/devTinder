@@ -3,10 +3,14 @@ const connectDB = require("./config/database");
 const User = require("./models/user");
 const bcrypt = require("bcrypt");
 const validateSignUpData = require("./utils/validateSignUpData");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+const { authToken } = require("./middlewares/auth");
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 // const adminAuth = require('./middlewares/auth');
 
@@ -96,6 +100,13 @@ app.post("/login", async (req, res) => {
         if (!isPasswordValid) {
             return res.status(401).send("Invalid password");
         }else{
+            const token = await user.getJWT();
+            
+            res.cookie("token", token, {
+                                httpOnly: true,
+                                maxAge: 60 * 60 * 1000 // Cookie expires in 1 hour (in ms)
+                                }); 
+
             // Password is valid, proceed with login
             console.log("User logged in successfully:", user);
             return res.status(200).json({
@@ -104,6 +115,21 @@ app.post("/login", async (req, res) => {
         }
 
     } catch (error) {
+        console.error("Error during login:", error);
+        return res.status(400).send(error.message || "Server error");
+    }
+})
+
+app.get("/profile",authToken,  async (req, res) => {
+    try{
+        const user = req.user
+
+        if(!user) {
+            return res.status(404).send("User not found");
+        }
+        res.send('User ID from cookie: ' + user);
+    }
+    catch (error) {
         console.error("Error during login:", error);
         return res.status(400).send(error.message || "Server error");
     }
