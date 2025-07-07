@@ -65,13 +65,13 @@ userSchema.methods.getJWT = async function() {
   return token;
 } 
 
-userSchema.methods.validatePassword = async function(password) {
+userSchema.methods.validatePassword = async function(passwordInputByUser) {
   const user = this
   if (!user || !user.password) {
     throw new Error('User not found or password not set');
   }
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+  const isPasswordValid = await bcrypt.compare(passwordInputByUser , user.password);
   if (!isPasswordValid) {
     throw new Error('Invalid password');
   } 
