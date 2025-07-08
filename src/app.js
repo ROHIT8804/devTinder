@@ -150,7 +150,7 @@ app.get("/users", async (req, res) => {
     }
 });
 
-app.get("/feed", async (req, res) => {
+app.get("/feed",authToken, async (req, res) => {
     try {
         const users = await User.find();
         if (users.length > 0) {
