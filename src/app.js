@@ -59,137 +59,14 @@ app.use(cookieParser());
 //     }
 // )
 
-app.post("/signup", async (req, res) => {
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const usersRouter = require("./routes/users");
 
-    try {   
-        validateSignUpData(req.body);
-        // Assuming password is sent in the request body
-        const passwordHash = await bcrypt.hash(req.body.password,10); 
-        console.log("Password Hash:", passwordHash);
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", usersRouter);
 
-            // Creating a new instance of the User model
-            const user = new User({
-                ...req.body,
-                password: passwordHash
-            })
-            console.log("User Data:", user);
-
-
-        // Validate the user data before saving
-        await user.save();
-        res.send("User created successfully");
-    } catch (error) {
-        console.error("Validation error:", error);
-        return res.status(400).send(error.message || "Validation failed");
-    }
-});
-
-app.post("/login", async (req, res) => {
-    try{
-        const  { emailId, password } = req.body;
-        if (!emailId || !password) {
-            return res.status(400).send("Email and password are required");
-        }
-        const user = await User.findOne({ emailId });
-
-        if(!user) {
-            return res.status(404).send("User not found");
-        }
-
-        const isPasswordValid = user.validatePassword(password);
-        if (!isPasswordValid) {
-            return res.status(401).send("Invalid password");
-        }else{
-            const token = await user.getJWT();
-
-            res.cookie("token", token, {
-                                httpOnly: true,
-                                maxAge: 60 * 60 * 1000 // Cookie expires in 1 hour (in ms)
-                                }); 
-
-            // Password is valid, proceed with login
-            console.log("User logged in successfully:", user);
-            return res.status(200).json({
-                message: "Login successful"
-            });
-        }
-
-    } catch (error) {
-        console.error("Error during login:", error);
-        return res.status(400).send(error.message || "Server error");
-    }
-})
-
-app.get("/profile",authToken,  async (req, res) => {
-    try{
-        const user = req.user
-
-        if(!user) {
-            return res.status(404).send("User not found");
-        }
-        res.send('User ID from cookie: ' + user);
-    }
-    catch (error) {
-        console.error("Error during login:", error);
-        return res.status(400).send(error.message || "Server error");
-    }
-})
-
-app.get("/users", async (req, res) => {
-    try {
-        const userEmail = req.body.emailId;
-        let users = await User.findOne({emailId: userEmail});
-        if (users?.length > 0) {
-            res.json(users);
-        } else {
-            res.status(404).send("No users found with the provided emailId");
-        }
-    } catch (error) {
-        console.error("Error fetching users:", error);
-        res.status(500).send("Server error");
-    }
-});
-
-app.get("/feed",authToken, async (req, res) => {
-    try {
-        const users = await User.find();
-        if (users.length > 0) {
-            res.json(users);
-        } else {
-            res.status(404).send("No users found");
-        }
-    } catch (error) {
-        console.error("Error fetching feed:", error);
-        res.status(500).send("Server error");
-    }
-});
-
-app.patch("/users/update/:userId", async (req, res) => {
-    const userId = req.params?.userId;
-    const updatedData = req.body;
-
-    try {
-        // Email can not be updated.
-        const ALLOWED_FIELDS = ["firstName", "lastName", "password", "age","skills"];
-        const invalidFields = Object.keys(updatedData).filter((key) => !ALLOWED_FIELDS.includes(key));
-        if (invalidFields.length > 0) {
-            return res.status(400).send("Invalid fields in request body: " + invalidFields.join(", "));
-        }
-
-        if (!userId) {
-            return res.status(400).send("userId is required");
-        }
-        delete updatedData._id; // Prevent _id update if present
-        const user = await User.findByIdAndUpdate(userId, updatedData, {new: true, runValidators: true});
-        if (!user) {
-            return res.status(404).send("User not found");
-        }
-        res.json(user);
-    } catch (error) {
-        console.error("Error updating user:", error);
-        res.status(400).send("UPDATE FAILED: " + error.message);
-    }
-});
 
 app.use((err, req, res, next) => {
     console.error("Error caught:", err.stack);
