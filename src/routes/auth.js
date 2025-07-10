@@ -42,7 +42,8 @@ authRouter.post("/login", async (req, res) => {
             return res.status(404).send("User not found");
         }
 
-        const isPasswordValid = user.validatePassword(password);
+        const isPasswordValid = await user.validatePassword(password);
+        console.log("Is Password Valid:", isPasswordValid);
         if (!isPasswordValid) {
             return res.status(401).send("Invalid password");
         }else{
@@ -64,6 +65,13 @@ authRouter.post("/login", async (req, res) => {
         console.error("Error during login:", error);
         return res.status(400).send(error.message || "Server error");
     }
+})
+
+authRouter.get("/logout",(req,res)=>{
+    res.cookie("token",null,{
+        expires: new Date(Date.now()),
+    });
+    res.status(200).send("Logged out successfully");
 })
 
 module.exports = authRouter;
