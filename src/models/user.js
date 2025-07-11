@@ -36,12 +36,12 @@ const userSchema = new Schema({
   },
   gender: {
     type: String,
-    validate: {
-      validator: function (value) {
-        return ['male', 'female', 'other'].includes(value.toLowerCase());
-      },
-      message: props => `${props.value} is not a valid gender. Accepted values are: male, female, other.`
-    }
+    enum: {
+        values: ['male', 'female', 'other'],
+        message: '{VALUE} is not a valid gender'
+    },
+    lowercase: true,
+    trim: true
   },
   skills: {
     type: [String],
