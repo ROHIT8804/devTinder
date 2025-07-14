@@ -42,7 +42,7 @@ authRouter.post("/request/send/:status/:toUserId",authToken, async (req, res) =>
     const data = await connectionRequest.save();
 
     res.json({
-      message: "Connection request sent successfully",
+      message: req.params.status === 'interested' ? "Connection request sent successfully" : "Connection request ignored",
       data: data
     });
  }
