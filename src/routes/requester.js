@@ -52,4 +52,40 @@ authRouter.post("/request/send/:status/:toUserId",authToken, async (req, res) =>
   } 
 })
 
+authRouter.post("/request/review/:status/:requestId",authToken, async (req, res) => {
+    try {
+        const loggedInUserId = req.user._id?.toString();
+        const { status, requestId } = req.params;
+        if (!status || !requestId) {
+            return res.status(400).send("Status and requestId are required");
+        }
+
+        const validStatuses = ['accepted', 'rejected'];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).send("Invalid status");
+        }
+
+        const connectionRequest = await ConnectionRequest.findOne({
+            _id: requestId,
+            toUserId: loggedInUserId,
+            status: 'interested'
+        });
+        if (!connectionRequest) { 
+            return res.status(404).send("Connection request not found or already processed");
+        }
+
+        connectionRequest.status = status;
+        const updatedRequest = await connectionRequest.save();  
+        res.json({
+            message: status === 'accepted' ? "Connection request accepted" : "Connection request rejected",
+            data: updatedRequest
+        });
+
+    }
+    catch (error) {
+        console.error("Error during request review:", error);
+        return res.status(400).send(error.message || "Server error");
+    }
+})
+
 module.exports = authRouter;

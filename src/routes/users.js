@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const ConnectionRequest = require("../models/connectionRequest");
 const { authToken } = require("../middlewares/auth");
 
 const express = require('express');
@@ -59,6 +60,30 @@ usersRouter.patch("/users/update/:userId", async (req, res) => {
         res.status(400).send("UPDATE FAILED: " + error.message);
     }
 });
+
+usersRouter.get("/users/requests/recieved", authToken, async (req, res) => {
+    try{
+        const loggedInUserId = req.user._id?.toString();
+        if (!loggedInUserId) {
+            return res.status(400).send("User not authenticated");
+        }
+
+        const recievedRequests = await ConnectionRequest.find({
+            toUserId: loggedInUserId,
+        }).populate('fromUserId', 'firstName lastName emailId age');
+
+        if (recievedRequests.length === 0) {
+            return res.status(404).send("No connection requests received");
+        }
+        res.json(recievedRequests);
+
+        
+    }
+    catch (error) {
+        console.error("Error fetching received requests:", error);
+        res.status(500).send("Server error");
+    }  
+})
 
 
 module.exports = usersRouter;
