@@ -85,6 +85,32 @@ usersRouter.get("/users/requests/recieved", authToken, async (req, res) => {
     }  
 })
 
+usersRouter.get("/users/connections", authToken, async (req, res) => {
+    try{
+        const loggedInUserId = req.user._id?.toString();
+        if (!loggedInUserId) {
+            return res.status(400).send("User not authenticated");
+        }
+
+        const connections = await ConnectionRequest.find({
+            $or: [
+                { fromUserId: loggedInUserId, status: 'accepted' },
+                { toUserId: loggedInUserId, status: 'accepted' }
+            ]
+        }).populate('fromUserId', 'firstName lastName emailId age')
+          .populate('toUserId', 'firstName lastName emailId age');
+
+        if (connections.length === 0) {
+            return res.status(404).send("No connections found");
+        }
+        res.json(connections);
+    }
+    catch (error) {
+        console.error("Error fetching connections:", error);
+        res.status(400).send(error.message || "Server error");
+    }
+})
+
 
 module.exports = usersRouter;
 
