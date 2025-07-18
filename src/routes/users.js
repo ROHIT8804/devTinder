@@ -111,6 +111,24 @@ usersRouter.get("/users/connections", authToken, async (req, res) => {
     }
 })
 
+usersRouter.get("/users/feed", authToken, async (req, res) => {
+    try{
+        const loggedInUserId = req.user._id?.toString();
+        if (!loggedInUserId) {
+            return res.status(400).send("User not authenticated");
+        }
+
+        const developersFeed = await User.find({})
+            .where('_id').ne(loggedInUserId) // Exclude the logged-in user
+        
+        res.json(developersFeed);
+    }
+    catch (error) {
+        console.error("Error fetching connections:", error);
+        res.status(400).send(error.message || "Server error");
+    }
+})
+
 
 module.exports = usersRouter;
 
