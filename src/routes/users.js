@@ -118,9 +118,38 @@ usersRouter.get("/users/feed", authToken, async (req, res) => {
             return res.status(400).send("User not authenticated");
         }
 
-        const developersFeed = await User.find({})
-            .where('_id').ne(loggedInUserId) // Exclude the logged-in user
-        
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        limit = limit > 50? 50 : limit;  
+        const skip = (page - 1) * limit;
+
+        const connectionsFeed = await ConnectionRequest.find({
+            $or: [
+                {fromUserId: loggedInUserId },
+                {toUserId: loggedInUserId }
+            ]
+        }).select("fromUserId toUserId")
+
+        const hideUser = new Set();
+        connectionsFeed.forEach((connection) => {
+            hideUser.add(connection.fromUserId.toString());
+            hideUser.add(connection.toUserId.toString());
+        });
+        console.log("Hide User Set: ", Array.from(hideUser));
+        const developersFeed = await User.find({
+            $and: [
+                { _id: { $nin: Array.from(hideUser) } },
+                { _id: { $ne: loggedInUserId } }
+            ]
+            
+        }).select("firstName lastName emailId age")
+        .skip(skip)
+        .limit(limit)
+
+        if (!developersFeed || developersFeed.length === 0) {
+            return res.status(404).send("No new users found for your feed");
+        } 
+
         res.json(developersFeed);
     }
     catch (error) {
