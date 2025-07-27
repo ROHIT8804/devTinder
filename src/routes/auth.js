@@ -57,7 +57,15 @@ authRouter.post("/login", async (req, res) => {
             // Password is valid, proceed with login
             console.log("User logged in successfully:", user);
             return res.status(200).json({
-                message: "Login successful"
+                message: "Login successful",
+                user: {
+                    id: user._id,
+                    emailId: user.emailId,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    age: user.age,
+                    skills: user.skills
+                }
             });
         }
 
