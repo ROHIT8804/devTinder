@@ -25,7 +25,8 @@ const authToken = async (req, res, next) => {
 
         const token = cookies.token;
         if (!token) {
-            throw new Error("Authentication token not found");
+            res.status(401).send("Access denied. No token provided.");
+            return;
         }
 
         const decoded = await jwt.verify(token, "devtTechSecretKey");
