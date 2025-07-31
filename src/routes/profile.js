@@ -12,7 +12,16 @@ authRouter.get("/profile",authToken,  async (req, res) => {
         if(!user) {
             return res.status(404).send("User not found");
         }
-        res.send('User ID from cookie: ' + user);
+        res.status(200).json({
+            user: {
+                    id: user._id,
+                    emailId: user.emailId,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    age: user.age,
+                    skills: user.skills
+                }
+        })
     }
     catch (error) {
         console.error("Error during login:", error);
