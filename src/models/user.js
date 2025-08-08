@@ -43,6 +43,10 @@ const userSchema = new Schema({
     lowercase: true,
     trim: true
   },
+  photoUrl: {
+    type: String,
+    default: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIf4R5qPKHPNMyAqV-FjS_OTBB8pfUV29Phg&s"
+  },
   skills: {
     type: [String],
     validate: {  

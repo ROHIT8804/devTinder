@@ -75,9 +75,12 @@ authRouter.post("/login", async (req, res) => {
     }
 })
 
-authRouter.get("/logout",(req,res)=>{
-    res.cookie("token",null,{
-        expires: new Date(Date.now()),
+authRouter.post("/logout",(req,res)=>{
+    res.clearCookie("token", {
+        httpOnly: true,      // must match cookie settings
+        secure: true,        // must match cookie settings (set to false if not using HTTPS in dev)
+        sameSite: "lax",     // must match cookie settings
+        path: "/",           // must match cookie settings
     });
     res.status(200).send("Logged out successfully");
 })
