@@ -42,9 +42,9 @@ authRouter.patch("/profile/update", authToken, async (req,res)=>{
             throw new Error("No data provided to update");
         }
 
-        const ALLOWED_FIELDS = ["firstName", "lastName","age","gender","skills"];
+        const ALLOWED_FIELDS = ["firstName", "lastName","age","gender","skills","photoUrl"];
 
-        const validFields = Object.keys(updatedData).filter((key) => ALLOWED_FIELDS.includes(key));
+        const validFields = Object.keys(updatedData).filter((key) => ALLOWED_FIELDS.includes(key) && updatedData[key] !== "");
         const invalidFields = Object.keys(updatedData).filter((key) => !ALLOWED_FIELDS.includes(key));
         console.log("Valid fields:", validFields);
 
