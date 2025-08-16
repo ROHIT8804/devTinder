@@ -97,8 +97,8 @@ usersRouter.get("/users/connections", authToken, async (req, res) => {
                 { fromUserId: loggedInUserId, status: 'accepted' },
                 { toUserId: loggedInUserId, status: 'accepted' }
             ]
-        }).populate('fromUserId', 'firstName lastName emailId age')
-          .populate('toUserId', 'firstName lastName emailId age');
+        }).populate('fromUserId', 'firstName lastName emailId age photoUrl skills about')
+          .populate('toUserId', 'firstName lastName emailId age photoUrl skills about');
 
         if (connections.length === 0) {
             return res.status(404).send("No connections found");
