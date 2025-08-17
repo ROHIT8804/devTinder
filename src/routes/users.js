@@ -103,7 +103,17 @@ usersRouter.get("/users/connections", authToken, async (req, res) => {
         if (connections.length === 0) {
             return res.status(404).send("No connections found");
         }
-        res.json(connections);
+        
+         const connectedUsers = connections.map(connection => {
+            if (connection.fromUserId._id.toString() === loggedInUserId) {
+                return connection.toUserId;
+            }
+            else {
+                return connection.fromUserId;
+            }
+        });
+
+        res.json(connectedUsers);
     }
     catch (error) {
         console.error("Error fetching connections:", error);
