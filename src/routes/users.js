@@ -70,7 +70,7 @@ usersRouter.get("/users/requests/recieved", authToken, async (req, res) => {
 
         const recievedRequests = await ConnectionRequest.find({
             toUserId: loggedInUserId,
-        }).populate('fromUserId', 'firstName lastName emailId age');
+        }).populate('fromUserId', 'firstName lastName emailId age photoUrl skills about');
 
         if (recievedRequests.length === 0) {
             return res.status(404).send("No connection requests received");
