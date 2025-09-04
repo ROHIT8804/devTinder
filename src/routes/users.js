@@ -70,6 +70,7 @@ usersRouter.get("/users/requests/recieved", authToken, async (req, res) => {
 
         const recievedRequests = await ConnectionRequest.find({
             toUserId: loggedInUserId,
+            status: 'interested',
         }).populate('fromUserId', 'firstName lastName emailId age photoUrl skills about');
 
         if (recievedRequests.length === 0) {
